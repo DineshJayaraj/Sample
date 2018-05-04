@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:cxf="http://camel.apache.org/schema/cxf"
+       xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://camel.apache.org/schema/cxf
+            http://camel.apache.org/schema/cxf/camel-cxf.xsd
+            http://cxf.apache.org/jaxrs
+            http://cxf.apache.org/schemas/jaxrs.xsd
+            http://camel.apache.org/schema/spring
+            http://camel.apache.org/schema/spring/camel-spring.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+    <!--          -->
+    <!-- ACTIVEMQ -->
+    <!--          -->
+
+    <!--                                 -->
+    <!-- LOWEST LEVEL CONNECTION FACTORY -->
+    <!--                                 -->
+
+    <bean id="directArtemisConnectionFactory" class="org.apache.qpid.jms.JmsConnectionFactory">
+        <property name="remoteURI" value="${subscriptions.broker.url}"/>
+        <property name="username" value="${subscriptions.broker.username}"/>
+        <property name="password" value="${subscriptions.broker.password}"/>
+
+        <!-- LOCAL -->
+<!--
+        <property name="remoteURI" value="amqp://localhost:61616"/>
+        <property name="username" value="admin"/>
+        <property name="password" value="admin"/>
+-->
+
+        <!-- TODO: how to configure AMQP failover + H/A + retries? -->
+        <!--&lt;!&ndash; NEVER STOP TRYING TO CONNECT &ndash;&gt;-->
+        <!--<property name="initialConnectAttempts" value="-1"/>-->
+        <!--<property name="reconnectAttempts" value="-1"/>-->
+    </bean>
+
+    <!--                           -->
+    <!-- POOLED CONNECTION FACTORY -->
+    <!--                           -->
+    <bean id="pooledArtemisConnectionFactory"
+          class="org.apache.activemq.jms.pool.PooledConnectionFactory">
+        <property name="connectionFactory" ref="directArtemisConnectionFactory"/>
+        <property name="maxConnections" value="${subscriptions.broker.maxProducerConnections:3}"/>
+        <property name="maximumActiveSessionPerConnection"
+                  value="${subscriptions.broker.maxActiveSessionsPerConnection:500}"/>
+    </bean>
+
+    <!--                  -->
+    <!-- CAMEL COMPONENTS -->
+    <!--                  -->
+    <!-- Pooling for producers -->
+    <bean id="artemis-out" class="org.apache.camel.component.jms.JmsComponent">
+        <property name="connectionFactory" ref="pooledArtemisConnectionFactory"/>
+    </bean>
+
+    <!-- No pooling for consumers - just don't do it! -->
+    <bean id="jms-producer" class="org.apache.camel.component.jms.JmsComponent">
+        <property name="connectionFactory" ref="directArtemisConnectionFactory"/>
+    </bean>
+</beans>

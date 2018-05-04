@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<!-- BASE Obfuscators -->
+	<bean id="nameObfuscator" class="com.od.eai.framework.dataobfuscator.coreobfuscators.NameObfuscator" scope="singleton"/>
+	<bean id="creditCardObfuscator" class="com.od.eai.framework.dataobfuscator.coreobfuscators.CreditCardObfuscator" scope="singleton"/>
+	<bean id="jsonDocHandler" class="com.od.eai.framework.utils.dochandlers.JsonDocumentHandler" scope="prototype"/>
+
+	<!-- JSON  -->
+	<bean id="billingHistoryRequest" class="com.od.eai.framework.dataobfuscator.coreobfuscators.JsonDocumentObfuscator" scope="singleton">
+		<property name="documentHandler" ref="jsonDocHandler"/>
+		<property name="attributesToObfuscate">
+			<map>
+				<entry key="$.billingHistoryRequest.customer.firstName" value-ref="nameObfuscator"/>
+				<entry key="$.billingHistoryRequest.customer.lastName" value-ref="nameObfuscator"/>
+				<entry key="$.billingHistoryRequest.customer.PaymentDetails.paymentcard.cardHighValueToken" value-ref="creditCardObfuscator"/>
+				<entry key="$.billingHistoryRequest.customer.PaymentDetails.paymentcard.billingAddress.name" value-ref="nameObfuscator"/>
+				<entry key="$.billingHistoryRequest.customer.contact.email" value-ref="nameObfuscator"/>
+			</map>
+		</property>
+	</bean>
+
+	<!-- OBFUSCATOR FACTORY -->
+	<bean id="obfuscatorFactory" class="com.od.eai.framework.dataobfuscator.ObfuscatorFactoryImpl" scope="singleton">
+		<property name="obfuscatorsMap"> 
+			<map>
+				<entry key="eaiaudit_billingHistoryRequest" value-ref="billingHistoryRequest"/>
+			</map>
+		</property>
+	</bean>
+
+</beans>

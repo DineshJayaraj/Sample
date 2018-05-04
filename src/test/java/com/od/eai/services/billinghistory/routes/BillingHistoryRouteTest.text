@@ -1,0 +1,140 @@
+package com.od.eai.services.billinghistory.routes;
+
+import org.apache.camel.CamelContext;
+import org.apache.camel.ProducerTemplate;
+import org.apache.camel.builder.AdviceWithRouteBuilder;
+import org.apache.camel.test.junit4.CamelTestSupport;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit4.SpringRunner;
+import com.od.eai.services.billinghistory.boot.ServiceApplication;
+
+@DirtiesContext
+@RunWith(SpringRunner.class)
+//@SpringBootTest(classes= {GetItemRouter.class})
+//@EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
+@SpringBootTest(classes = ServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+public class BillingHistoryRouteTest extends CamelTestSupport{
+
+private static Logger log = LoggerFactory.getLogger(BillingHistoryRouteTest.class);
+	
+	@Autowired
+	CamelContext camelContext; 
+	
+	@Autowired
+	ProducerTemplate producerTemplate; 
+	
+	protected CamelContext createCamelContext() throws Exception {                                                                                                                               
+	    return camelContext;
+	}
+	
+	@Test
+	public void BillingHistoryRouteTest() throws Exception{
+		
+		camelContext.getRouteDefinitions().get(0).adviceWith(camelContext, new AdviceWithRouteBuilder() {
+		    @Override
+		    public void configure() throws Exception {
+		     //   weaveById("GETAFFCST_SP").replace().to("mock:test");
+		    }
+		});
+		
+//		producerTemplate.sendBody("direct:updateSubscriptionStoreProcCall","{\"orderNumber\":\"123456790-001\",\"externalOrderNumber\":\"001\",\"locationId\":300000001288213,\"partyId\":300000001286139,\"customerAccountId\":300000001287205,\"contractId\":3000,\"contractNumber\":300000001}");
+		producerTemplate.sendBody("direct:billinghistory","{\"billingHistoryRequest\": {\n" + 
+				"\"transactionHeader\": {\n" + 
+				"\"consumerName\": \"TEST\",\n" + 
+				"\"consumerTransactionId\": \"d7007ddb-87cc-48x23-CC8d-201711_0814_1\",\n" + 
+				"\"consumerTransactionDateTime\": \"2017-08-07T12:34:55\"\n" + 
+				"},\n" + 
+				"\"customer\": {\n" + 
+				"\"firstName\": \"BizBox Customer\",\n" + 
+				"\"middleName\": \"\",\n" + 
+				"\"lastName\": \"\",\n" + 
+				"\"paymentDetails\": {\n" + 
+				"\"paymentType\": \"CreditCard\",\n" + 
+				"\"paymentCard\": {\n" + 
+				"\"cardHighValueToken\": \"4111111367391111\",\n" + 
+				"\"expirationDate\": \"1812\",\n" + 
+				"\"amount\": \"133.72\",\n" + 
+				"\"cardType\": \"AMEX\",\n" + 
+				"\"applicationTransactionNumber\": \"45632170807\",\n" + 
+				"\"billingAddress\": {\n" + 
+				"\"name\": \"BizBox Customer\",\n" + 
+				"\"address\": {\n" + 
+				"\"address1\": \"6600 N Military Trl\",\n" + 
+				"\"address2\": \"\",\n" + 
+				"\"city\": \"Boca Raton\",\n" + 
+				"\"state\": \"FL\",\n" + 
+				"\"postalCode\": \"33496\",\n" + 
+				"\"country\": \"US\"\n" + 
+				"}\n" + 
+				"}\n" + 
+				"},\n" + 
+				"\"billingAgreementId\": \"123456\",\n" + 
+				"\"walletId\": \"\"\n" + 
+				"},\n" + 
+				"\"contact\": {\n" + 
+				"\"email\": \"testod@officedepot.com\",\n" + 
+				"\"phoneNumber\": \"561-767-2321\",\n" + 
+				"\"faxNumber\": \"561-767-2321\"\n" + 
+				"}\n" + 
+				"},\n" + 
+				"\"invoice\": {\n" + 
+				"\"invoiceNumber\": \"123242343545001\",\n" + 
+				"\"orderNumber\": \"123234234234\",\n" + 
+				"\"serviceContractNumber\": \"123234234234\",\n" + 
+				"\"billingDate\": \"DD-MON-YYYY\",\n" + 
+				"\"billingTime\": \"HH24:MI:SS\",\n" + 
+				"\"invoiceDate\": \"DD-MON-YYYY\",\n" + 
+				"\"invoiceTime\": \"HH24:MI:SS\",\n" + 
+				"\"invoiceStatus\": \"String\",\n" + 
+				"\"servicePeriodStartDate\": \"String\",\n" + 
+				"\"servicePeriodEndDate\": \"String\",\n" + 
+				"\"totals\": {\n" + 
+				"\"subTotal\": \"String\",\n" + 
+				"\"totalTax\": \"String\",\n" +
+				"\"delivery\": \"String\",\n" + 
+				"\"discount\": \"String\",\n" + 
+				"\"misc\": \"String\",\n" + 
+				"\"total\": \"String\"\n" + 
+				"},\n" + 
+				"\"invoiceLines\": {\n" + 
+				"\"invoiceLine\": [{\n" + 
+				"\"orderLineNumber\": \"1\",\n" + 
+				"\"contractLineNumber\": \"1\",\n" + 
+				"\"lineTypeName\": \"Subscription\",\n" + 
+				"\"itemName\": \"Subscription\",\n" + 
+				"\"itemNumber\": \"SKU1\",\n" + 
+				"\"contractStartDate\": \"2017-11-20\",\n" + 
+				"\"contractEndDate\": \"2018-03-30\",\n" + 
+				"\"unitOfMeasure\": \"MONTH\",\n" + 
+				"\"quantity\": \"String\",\n" + 
+				"\"billingFrequency\": \"YR\",\n" + 
+				"\"unitPrice\": \"\"\n" + 
+				"},\n" + 
+				"{\n" + 
+				"\"orderLineNumber\": \"2\",\n" + 
+				"\"contractLineNumber\": \"2\",\n" + 
+				"\"lineTypeName\": \"Subscription\",\n" + 
+				"\"itemName\": \"Subscription\",\n" + 
+				"\"itemNumber\": \"SKU2\",\n" + 
+				"\"contractStartDate\": \"2017-11-20\",\n" + 
+				"\"contractEndDate\": \"2018-03-30\",\n" + 
+				"\"unitOfMeasure\": \"MONTH\",\n" + 
+				"\"quantity\": \"String\",\n" + 
+				"\"billingFrequency\": \"YR\",\n" + 
+				"\"unitPrice\": \"\"\n" + 
+				"}]\n" + 
+				"}\n" + 
+				"},\n" + 
+				"\"skipAuthorization\": \"true\"\n" + 
+				"}\n" + 
+				"}");
+
+		assertMockEndpointsSatisfied();
+	}
+}

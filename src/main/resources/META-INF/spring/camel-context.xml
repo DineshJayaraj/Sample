@@ -1,0 +1,55 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:cxf="http://camel.apache.org/schema/cxf"
+       xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="         http://www.springframework.org/schema/beans         http://www.springframework.org/schema/beans/spring-beans.xsd         http://camel.apache.org/schema/cxf         http://camel.apache.org/schema/cxf/camel-cxf.xsd         http://cxf.apache.org/jaxrs         http://cxf.apache.org/schemas/jaxrs.xsd         http://camel.apache.org/schema/spring         http://camel.apache.org/schema/spring/camel-spring.xsd         http://www.springframework.org/schema/context          http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!-- Obfuscator invoke the class -->
+    <import resource="classpath:META-INF/spring/activemq-camel-client.xml"/>
+    <context:component-scan base-package="com.od.eai.framework"/>
+
+    <!-- security basic authentication and JWT implementation starts -->
+    <bean class="com.od.eai.framework.security.authproviders.AuthenticationEntryPoint" id="authenticationEntryPoint"/>
+    <bean class="com.od.eai.framework.security.authproviders.CustomPropertyAuthenticationProvider" id="custompropertyauthenticationprovider">
+        <constructor-arg type="java.lang.String" value="${eai.microservices.security.properties.location}"/>
+    </bean>
+    <bean class="com.od.eai.framework.security.authproviders.JWTAuthenticationProvider" id="jwtAuthenticationProvider">
+        <constructor-arg type="java.lang.String" value="#{systemEnvironment['JWT_SECRET_KEY']}"/>
+    </bean>
+    <!-- security basic authentication and JWT implementation end -->
+    <bean class="com.od.eai.framework.core.interceptor.ContainerWideInterceptorImpl" id="cwInterceptor"/>
+
+    <!-- CAMEL CONTEXT -->
+    <!-- streamCache="true" -->
+    <camelContext id="Generic_camelContext" streamCache="true" xmlns="http://camel.apache.org/schema/spring"/>
+
+    <!-- DataSourceDetails -->
+    <bean class="org.apache.commons.dbcp.BasicDataSource"
+          destroy-method="close" id="AS400JDBCDataSource">
+        <property name="driverClassName" value="${as400.datasource.driver}"/>
+        <property name="url" value="${as400.datasource.jdbcUrl}"/>
+        <property name="username" value="${as400.datasource.userName}"/>
+        <property name="password" value="${as400.datasource.password}"/>
+        <property name="initialSize" value="${as400.datasource.initialSize}" />
+        <property name="maxActive" value="${as400.datasource.maxActive}" />
+        <!-- new properties for testing connections -->
+        <property name="removeAbandoned" value="true"/>
+        <property name="testOnBorrow" value="true"/>
+        <property name="testOnReturn" value="true"/>
+        <property name="testWhileIdle" value="true"/>
+        <property name="validationQuery" value="${as400.validation.query}"/>
+        <property name="timeBetweenEvictionRunsMillis" value="-1"/>
+    </bean>
+    <!-- -->
+    <bean class="com.od.eai.services.billinghistory.processor.BillingHistoryAOPSProcessor" id="billingHistoryAOPSProcessor"/>
+    <bean class="com.od.eai.services.billinghistory.processor.BillingHistoryElasticProcessor" id="billingHistoryElasticProcessor"/>
+    <bean class="com.od.eai.services.billinghistory.processor.BillingHistorySearchProcessor" id="billingHistorySearchProcessor"/>
+    <bean class="com.od.eai.services.billinghistory.processor.BillingHistoryTransportClient" id="billingHistoryTransportClient"/>
+    <bean
+            class="com.od.eai.services.billinghistory.routes.BillingHistoryRouteBuilder" id="billingHistoryRouteBuilder">
+        <property name="billingHistoryAOPSProcessor" ref="billingHistoryAOPSProcessor"/>
+        <property name="billingHistoryElasticProcessor" ref="billingHistoryElasticProcessor"/>
+        <property name="billingHistorySearchProcessor" ref="billingHistorySearchProcessor"/>
+        <property name="billingHistoryTransportClient" ref="billingHistoryTransportClient"/>
+    </bean>
+</beans>
